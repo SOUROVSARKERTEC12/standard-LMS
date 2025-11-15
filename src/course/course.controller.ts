@@ -10,7 +10,7 @@ import {
   Delete,
   UseGuards,
   Req,
-  ParseUUIDPipe
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -64,6 +64,7 @@ export class CourseController {
   // 4. UPDATE
   // -----------------------------------------------------
   @Patch(':id')
+  @Roles(UserRole.ADMIN, UserRole.TEACHER)
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateCourseDto: UpdateCourseDto,
