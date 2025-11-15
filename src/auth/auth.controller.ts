@@ -1,7 +1,16 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.user.dto';
 import { LoginDto } from './dto/login.user.dto';
+import { AuthGuard } from './auth.guard';
+import { UserService } from 'src/user/user.service';
 
 @Controller('auth')
 export class AuthController {
@@ -9,7 +18,10 @@ export class AuthController {
   //   constructor(authService: AuthService) {
   //     this.authService = authService;
   //   }
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly userService: UserService,
+  ) {}
 
   @Post('register')
   register(@Body() registerUserDto: RegisterDto) {
@@ -18,9 +30,16 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() loginUserDto: LoginDto) { // 💡 Inject LoginUserDto
+  async login(@Body() loginUserDto: LoginDto) {
+    // 💡 Inject LoginUserDto
     // Call the service method to handle authentication and token generation
     const result = await this.authService.loginUser(loginUserDto);
     return result;
-  }
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('profile')
+  getProfile(@Request() req) {
+    return this.userService.findByUserId(req.user.sub);
+  }
 }

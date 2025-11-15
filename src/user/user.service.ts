@@ -54,4 +54,20 @@ export class UserService {
       ],
     });
   }
+  async findByUserId(id: string): Promise<Omit<User, 'password'> | null> {
+    // findOneBy is cleaner for simple primary key lookups
+    // Because we DO NOT explicitly include 'password' in the select array,
+    // TypeORM honors the @Column({ select: false }) decorator on the User entity.
+    const user = await this.usersRepository.findOneBy({ id });
+
+    if (!user) {
+      return null;
+    }
+
+    // Use object destructuring to safely omit the password property
+    // before returning the object.
+    const { password, ...userWithoutPassword } = user;
+
+    return userWithoutPassword;
+  }
 }
