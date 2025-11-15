@@ -40,6 +40,7 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Get('profile')
   getProfile(@Request() req) {
-    return this.userService.findByUserId(req.user.sub);
+    const userId = req.user.sub;
+    return this.userService.findByUserId(userId);
   }
 }

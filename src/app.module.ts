@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { DatabaseModule } from './database/database.module'; // 1. Import new module
+import { CourseModule } from './course/course.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { DatabaseModule } from './database/database.module'; // 1. Import new mo
     // 3. Your feature modules
     AuthModule,
     UserModule,
+    CourseModule,
   ],
   controllers: [AppController],
   providers: [AppService],
