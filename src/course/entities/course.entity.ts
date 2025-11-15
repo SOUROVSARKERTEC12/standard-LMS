@@ -46,8 +46,11 @@ export class Course {
   // -----------------------------------------------------
 
   // Foreign Key Column: Stores the UUID of the User
-  @Column({ type: 'uuid' })
-  userId: string;
+  @Column({
+    type: 'uuid',
+    nullable: true,
+  })
+  userId: string | null;
 
   // Many-to-One Relationship: Many courses belong to one User
   // The 'user' property allows TypeORM to load the entire user object when needed
@@ -59,7 +62,7 @@ export class Course {
   })
   // Defines the actual database column used for the foreign key
   @JoinColumn({ name: 'userId' })
-  user: User;
+  user: User | null;
 
   // Timestamps
   @CreateDateColumn({ type: 'timestamp' })

@@ -10,7 +10,7 @@ import {
   Delete,
   UseGuards,
   Req,
-  ParseUUIDPipe, // 💡 For validating UUIDs
+  ParseUUIDPipe
 } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -18,6 +18,8 @@ import { UpdateCourseDto } from './dto/update-course.dto';
 import { AuthGuard } from '../auth/auth.guard'; // 💡 Import the AuthGuard
 import { AuthenticatedRequest } from 'src/common/interfaces/request.interface'; // 💡 Import the custom request interface
 import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/auth/roles.decorator';
+import { UserRole } from 'src/user/enum/roles.enum';
 
 @UseGuards(AuthGuard, RolesGuard) // 💡 Protects all routes in this controller
 @Controller('courses')
@@ -28,6 +30,7 @@ export class CourseController {
   // 1. CREATE COURSE (Protected & requires userId)
   // -----------------------------------------------------
   @Post()
+  @Roles(UserRole.ADMIN, UserRole.TEACHER)
   create(
     @Body() createCourseDto: CreateCourseDto,
     // Extract user ID from the JWT payload placed on the request by AuthGuard
@@ -75,6 +78,7 @@ export class CourseController {
   // 5. DELETE
   // -----------------------------------------------------
   @Delete(':id')
+  @Roles(UserRole.ADMIN)
   remove(@Param('id', ParseUUIDPipe) id: string) {
     // Ensure the service method receives a string (UUID)
     return this.courseService.remove(id);
