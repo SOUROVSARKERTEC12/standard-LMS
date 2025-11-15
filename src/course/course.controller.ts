@@ -15,11 +15,12 @@ import {
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
-import { AuthGuard } from '../auth/auth.guard'; // 💡 Import the AuthGuard
+import { AuthGuard } from '../auth/guards/auth.guard'; // 💡 Import the AuthGuard
 import { AuthenticatedRequest } from 'src/common/interfaces/request.interface'; // 💡 Import the custom request interface
-import { RolesGuard } from 'src/auth/roles.guard';
-import { Roles } from 'src/auth/roles.decorator';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 import { UserRole } from 'src/user/enum/roles.enum';
+import { Public } from 'src/auth/decorators/public.decorator';
 
 @UseGuards(AuthGuard, RolesGuard) // 💡 Protects all routes in this controller
 @Controller('courses')
@@ -45,6 +46,7 @@ export class CourseController {
   // -----------------------------------------------------
   // 2. READ ALL
   // -----------------------------------------------------
+  @Public()
   @Get()
   findAll() {
     return this.courseService.findAll();
@@ -53,6 +55,7 @@ export class CourseController {
   // -----------------------------------------------------
   // 3. READ ONE
   // -----------------------------------------------------
+  @Public()
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     // 💡 Use ParseUUIDPipe to validate ID format

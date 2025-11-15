@@ -40,7 +40,7 @@ export class CourseService {
     // Find all courses, optionally including the author (user)
     return this.courseRepository.find({
       // Load the related user (author) data
-      relations: ['user'],
+      // relations: ['user'],
     });
   }
 

@@ -10,15 +10,28 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import { AuthenticatedRequest } from 'src/common/interfaces/request.interface';
+import { Reflector } from '@nestjs/core'; // <-- Make sure Reflector is imported
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator'; // <-- Import the new key
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
-    private configService: ConfigService, 
+    private configService: ConfigService,
+    private reflector: Reflector,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    // 1. Check for Public Decorator
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    // If the route is marked as public, allow access immediately, bypassing token check.
+    if (isPublic) {
+      return true;
+    }
     // Cast the request to our custom interface for type safety
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
 
