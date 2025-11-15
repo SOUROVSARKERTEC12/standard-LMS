@@ -3,7 +3,7 @@ import {
   BadRequestException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { RegisterDto } from 'src/auth/dto/registerUser.dto';
+import { RegisterDto } from 'src/auth/dto/register.user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, QueryFailedError } from 'typeorm';
 import { User } from './entity/user.entity';
@@ -37,5 +37,21 @@ export class UserService {
         'A database error occurred during user creation.',
       );
     }
+  }
+
+  async findByEmailWithPassword(email: string): Promise<User | null> {
+    return this.usersRepository.findOne({
+      where: { email },
+      select: [
+        'id',
+        'fname',
+        'lname',
+        'email',
+        'role',
+        'password',
+        'createdAt',
+        'updatedAt',
+      ],
+    });
   }
 }

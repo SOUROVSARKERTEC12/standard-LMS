@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
-import { RegisterDto } from './dto/registerUser.dto';
+import { RegisterDto } from './dto/register.user.dto';
 import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
+import { LoginDto } from './dto/login.user.dto';
+import { User } from 'src/user/entity/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -38,5 +40,51 @@ export class AuthService {
     const accessToken = await this.jwtService.signAsync(payload);
 
     return { accessToken };
+  }
+
+  async loginUser(
+    loginUserDto: LoginDto,
+  ): Promise<{ user: Omit<User, 'password'>; accessToken: string }> {
+
+    // console.log("login cred", loginUserDto)
+    // 1. Find the user by email
+    const user = await this.userService.findByEmailWithPassword(
+      loginUserDto.email,
+    );
+
+    // 2. Check if the user exists
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials.');
+    }
+
+    // 3. Verify the password hash using Argon2
+    const passwordMatch = await argon2.verify(
+      user.password,
+      loginUserDto.password,
+    );
+
+    if (!passwordMatch) {
+      throw new UnauthorizedException('Invalid credentials.');
+    }
+
+    // 4. Generate JWT payload
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+      // Optional: Add full name
+      username: `${user.fname} ${user.lname}`,
+    };
+
+    // 5. Generate Access Token
+    const accessToken = await this.jwtService.signAsync(payload);
+
+    // 6. Prepare and return the response (user data without password + token)
+    const { password, ...rest } = user;
+
+    return {
+      user: rest,
+      accessToken,
+    };
   }
 }
